@@ -288,7 +288,7 @@
             
             locationStatus.innerHTML = `<span class="success-message"></span>`;
           } catch (error) {
-            locationStatus.innerHTML = `<span>Using approximate location (IP: ${ip})</span>`;
+            //locationStatus.innerHTML = `<span>Using approximate location (IP: ${ip})</span>`;
             console.warn("Geolocation error:", error);
           }
         } else {
