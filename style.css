@@ -1,78 +1,22 @@
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-  
-  body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    position: relative;
-    z-index: 1;
+textarea {
+  display: block;
+  margin: 0 auto;       /* center horizontally */
+  width: 80%;           /* match button width */
+  max-width: 450px;     /* prevent it from being too wide */
+ 
 
-  }
-  
-  /* Zooming background */
-  body::before {
-    content: "";
-    position: fixed;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background:
-      linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.4)),
-      url('bg.jpg'); /* Replace with your image */
-    background-size: cover;
-    background-position: center;
-    animation: zoomEffect 20s ease-in-out infinite;
-    z-index: -1;
-  }
-  
-  @keyframes zoomEffect {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(1.2); }
-    100% { transform: scale(1); }
-  }
-  
-  /* Circle photo above heading */
-  .overlay-img {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    background-clip: padding-box; /* ensures inner fill stays separate */
-  
-    /* Transparent center stroke effect */
-    border: 0.9px solid transparent;
-    border-image: url('bg.jpg') 30 round; /* same image as background */
-    border-image-outset: 0;
-    border-image-width: 0.9px;
-  
-    margin-bottom: 30px;
+}
 
-    
-      
-  }
+#message {
+  display: block;      /* makes it take the full line */
+  margin: 0 auto;      /* centers it horizontally */
+  width: 80%;          /* set a reasonable width */
+  max-width: 400px;    /* avoid stretching too wide */
+  border-radius: 0;    /* square corners */
+}
 
-  h2 {
-    font-family: monospace, sans-serif;
-    font-size: 32px;
-    font-weight: bold;
-    color: #ffffff; /* neon cyan */
+#sendButton {
+  border-radius: 0;  
 
-    -webkit-text-stroke: 0.3px rgb(255, 217, 0);
-    text-shadow: 
-      0 0 5px #d900ff9e,
-  
-  }
-  
+}
 
-  
-  
-  
